@@ -45,6 +45,7 @@ void cleanup( int internet_socket );
 int qPakket;
 
 
+
 int main( int argc, char * argv[] )
 {
 
@@ -138,6 +139,8 @@ void execution( int internet_socket )
 {
 	FILE *output;
 	output = fopen("output.csv", "w+");
+	int totPakket;
+	totPakket = 0;
 
 		//Step 2.1
 		int number_of_bytes_received = 0;
@@ -157,9 +160,12 @@ void execution( int internet_socket )
 				buffer[number_of_bytes_received] = '\0';
 				printf( "Received : %s\n", buffer );
 				fprintf(output, "%s\n", buffer);
+				totPakket = totPakket +1;
 			}
+
 	}
-	
+			printf( "Total packets received : %s\n", totPakket );
+			fprintf(output, "Total packets received : %d\n", totPakket);
 
 
 
