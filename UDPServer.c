@@ -42,10 +42,9 @@ int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
 
-FILE *output;
-
 int main( int argc, char * argv[] )
 {
+	FILE *output;
 	output = fopen("output.csv", "w+");
 	fprintf(output, "bla bla");
 
