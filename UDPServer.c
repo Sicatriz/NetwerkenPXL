@@ -42,8 +42,14 @@ int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
 
+FILE *output;
+
 int main( int argc, char * argv[] )
 {
+	output = fopen("output.csv", "w+");
+	fprintf(output, "bla bla");
+
+
 	//////////////////
 	//Initialization//
 	//////////////////
@@ -56,7 +62,14 @@ int main( int argc, char * argv[] )
 	//Execution//
 	/////////////
 
-	execution( internet_socket );
+	while (1)
+	{
+		execution( internet_socket );
+
+
+	}
+	
+
 
 
 	////////////
@@ -66,6 +79,8 @@ int main( int argc, char * argv[] )
 	cleanup( internet_socket );
 
 	OSCleanup();
+
+	fclose(output);
 
 	return 0;
 }
