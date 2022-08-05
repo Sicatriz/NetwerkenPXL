@@ -64,7 +64,7 @@ int main( int argc, char * argv[] )
 	/////////////
 
 	printf("Hoeveel pakketten wil je ontvangen?");
-	scanf("%d", qPakket);
+	scanf("%d", &qPakket);
 	
 	execution( internet_socket );
 
