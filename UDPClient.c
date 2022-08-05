@@ -62,10 +62,13 @@ int main( int argc, char * argv[] )
 	//Execution//
 	/////////////
 
+	system("cls");
+	printf("**********************************\n");
 	printf("Welke boodschap wil je verzenden?\n");
+	printf("**********************************\n");
 	gets(message);
 	fflush(stdin);
-	printf("hoeveel pakketen wenst u te verzenden?\n");
+	printf("\nhoeveel pakketen wenst u te verzenden?\n");
 	scanf("%d", &toSendPack);
 
 
