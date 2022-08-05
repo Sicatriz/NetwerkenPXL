@@ -1,3 +1,5 @@
+// gcc UDPClient.c -l ws2_32 -o run
+
 #ifdef _WIN32
 	#define _WIN32_WINNT _WIN32_WINNT_WIN7
 	#include <winsock2.h> //for all socket programming
@@ -36,9 +38,13 @@
 	void OSCleanup( void ) {}
 #endif
 
-int initializationUDP( struct sockaddr ** internet_address, socklen_t * internet_address_length );
-void executionUDP( int internet_socket, struct sockaddr * internet_address, socklen_t internet_address_length );
+int initialization( struct sockaddr ** internet_address, socklen_t * internet_address_length );
+void execution( int internet_socket, struct sockaddr * internet_address, socklen_t internet_address_length );
 void cleanup( int internet_socket, struct sockaddr * internet_address );
+
+int toSendPack;
+char message[1000];
+
 
 int main( int argc, char * argv[] )
 {
@@ -50,15 +56,21 @@ int main( int argc, char * argv[] )
 
 	struct sockaddr * internet_address = NULL;
 	socklen_t internet_address_length = 0;
-	int internet_socket = initializationUDP( &internet_address, &internet_address_length );
+	int internet_socket = initialization( &internet_address, &internet_address_length );
 
 	/////////////
 	//Execution//
 	/////////////
 
-	executionUDP( internet_socket, internet_address, internet_address_length );
+	printf("Welke boodschap wil je verzenden?\n");
+	gets(message);
+	fflush(stdin);
+	printf("hoeveel pakketen wenst u te verzenden?\n");
+	scanf("%d", &toSendPack);
 
 
+	execution( internet_socket, internet_address, internet_address_length );
+	
 	////////////
 	//Clean up//
 	////////////
@@ -70,7 +82,7 @@ int main( int argc, char * argv[] )
 	return 0;
 }
 
-int initializationUDP( struct sockaddr ** internet_address, socklen_t * internet_address_length )
+int initialization( struct sockaddr ** internet_address, socklen_t * internet_address_length )
 {
 	//Step 1.1
 	struct addrinfo internet_address_setup;
@@ -78,7 +90,7 @@ int initializationUDP( struct sockaddr ** internet_address, socklen_t * internet
 	memset( &internet_address_setup, 0, sizeof internet_address_setup );
 	internet_address_setup.ai_family = AF_INET;
 	internet_address_setup.ai_socktype = SOCK_DGRAM;
-	int getaddrinfo_return = getaddrinfo( "127.0.0.1", "50004", &internet_address_setup, &internet_address_result );
+	int getaddrinfo_return = getaddrinfo( "127.0.0.1", "24042", &internet_address_setup, &internet_address_result );
 	if( getaddrinfo_return != 0 )
 	{
 		fprintf( stderr, "getaddrinfo: %s\n", gai_strerror( getaddrinfo_return ) );
@@ -117,28 +129,28 @@ int initializationUDP( struct sockaddr ** internet_address, socklen_t * internet
 	return internet_socket;
 }
 
-void executionUDP( int internet_socket, struct sockaddr * internet_address, socklen_t internet_address_length )
+void execution( int internet_socket, struct sockaddr * internet_address, socklen_t internet_address_length )
 {
 	//Step 2.1
 	int number_of_bytes_send = 0;
-	number_of_bytes_send = sendto( internet_socket, "Hello UDP world!", 16, 0, internet_address, internet_address_length );
-	if( number_of_bytes_send == -1 )
-	{
-		perror( "sendto" );
+
+	for (size_t i = 0; i < toSendPack; i++)
+	{	
+		number_of_bytes_send = sendto( internet_socket, message, strlen(message)+1, 0, internet_address, internet_address_length );
+		if( number_of_bytes_send == -1 )
+		{
+			perror( "sendto" );
+		}
 	}
-	
-	int timeout = 1000;
+
+
 	//Step 2.2
 	int number_of_bytes_received = 0;
 	char buffer[1000];
-	if (setsockopt(internet_socket, SOL_SOCKET, SO_RCVTIMEO,&timeout,sizeof(timeout)) < 0) {
-         printf("\nTEST");
-    }
 	number_of_bytes_received = recvfrom( internet_socket, buffer, ( sizeof buffer ) - 1, 0, internet_address, &internet_address_length );
 	if( number_of_bytes_received == -1 )
 	{
 		perror( "recvfrom" );
-		printf("\nTEST");
 	}
 	else
 	{
