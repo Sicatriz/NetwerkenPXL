@@ -46,7 +46,7 @@ int main( int argc, char * argv[] )
 {
 	FILE *output;
 	output = fopen("output.csv", "w+");
-	fprintf(output, "bla bla");
+	fprintf(output,"bla bla");
 
 
 	//////////////////
@@ -61,13 +61,7 @@ int main( int argc, char * argv[] )
 	//Execution//
 	/////////////
 
-	while (1)
-	{
-		execution( internet_socket );
-
-
-	}
-	
+	execution( internet_socket );
 
 
 
