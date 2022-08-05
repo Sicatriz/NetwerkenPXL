@@ -44,12 +44,9 @@ void cleanup( int internet_socket );
 
 int qPakket;
 
+
 int main( int argc, char * argv[] )
 {
-	FILE *output;
-	output = fopen("output.csv", "w+");
-	fprintf(output,"bla bla");
-
 
 	//////////////////
 	//Initialization//
@@ -63,7 +60,7 @@ int main( int argc, char * argv[] )
 	//Execution//
 	/////////////
 
-	printf("Hoeveel pakketten wil je ontvangen?");
+	printf("Hoeveel pakketten wil je ontvangen?\n");
 	scanf("%d", &qPakket);
 	
 	execution( internet_socket );
@@ -78,7 +75,7 @@ int main( int argc, char * argv[] )
 
 	OSCleanup();
 
-	fclose(output);
+
 
 	return 0;
 }
@@ -139,7 +136,8 @@ int initialization()
 
 void execution( int internet_socket )
 {
-
+	FILE *output;
+	output = fopen("output.csv", "w+");
 
 		//Step 2.1
 		int number_of_bytes_received = 0;
@@ -158,6 +156,7 @@ void execution( int internet_socket )
 			{
 				buffer[number_of_bytes_received] = '\0';
 				printf( "Received : %s\n", buffer );
+				fprintf(output, "%s\n", buffer);
 			}
 	}
 	
@@ -171,6 +170,8 @@ void execution( int internet_socket )
 	{
 		perror( "sendto" );
 	}
+
+		fclose(output);
 }
 
 void cleanup( int internet_socket )
