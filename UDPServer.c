@@ -42,6 +42,8 @@ int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
 
+int qPakket;
+
 int main( int argc, char * argv[] )
 {
 	FILE *output;
@@ -61,6 +63,9 @@ int main( int argc, char * argv[] )
 	//Execution//
 	/////////////
 
+	printf("Hoeveel pakketten wil je ontvangen?");
+	scanf("%d", qPakket);
+	
 	execution( internet_socket );
 
 
@@ -134,21 +139,30 @@ int initialization()
 
 void execution( int internet_socket )
 {
-	//Step 2.1
-	int number_of_bytes_received = 0;
-	char buffer[1000];
-	struct sockaddr_storage client_internet_address;
-	socklen_t client_internet_address_length = sizeof client_internet_address;
-	number_of_bytes_received = recvfrom( internet_socket, buffer, ( sizeof buffer ) - 1, 0, (struct sockaddr *) &client_internet_address, &client_internet_address_length );
-	if( number_of_bytes_received == -1 )
+
+
+		//Step 2.1
+		int number_of_bytes_received = 0;
+		char buffer[1000];
+		struct sockaddr_storage client_internet_address;
+		socklen_t client_internet_address_length = sizeof client_internet_address;
+	
+	for (size_t i = 0; i < qPakket; i++)
 	{
-		perror( "recvfrom" );
+			number_of_bytes_received = recvfrom( internet_socket, buffer, ( sizeof buffer ) - 1, 0, (struct sockaddr *) &client_internet_address, &client_internet_address_length );
+			if( number_of_bytes_received == -1 )
+			{
+				perror( "recvfrom" );
+			}
+			else
+			{
+				buffer[number_of_bytes_received] = '\0';
+				printf( "Received : %s\n", buffer );
+			}
 	}
-	else
-	{
-		buffer[number_of_bytes_received] = '\0';
-		printf( "Received : %s\n", buffer );
-	}
+	
+
+
 
 	//Step 2.2
 	int number_of_bytes_send = 0;
