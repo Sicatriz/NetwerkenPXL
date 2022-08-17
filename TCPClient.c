@@ -1,3 +1,5 @@
+// gcc TCPClient.c -l ws2_32 -o tcp
+
 #ifdef _WIN32
 	#define _WIN32_WINNT _WIN32_WINNT_WIN7
 	#include <winsock2.h> //for all socket programming
@@ -65,7 +67,26 @@ void* sendItem()
 	
 }
 
+void* receiveItem()
+{
 
+	while (1)
+	{
+		int number_of_bytes_received = 0;
+		char buffer[10000];
+		number_of_bytes_received = recv( internet_socket, buffer, ( sizeof buffer ) - 1, 0 );
+		if( number_of_bytes_received == -1 )
+		{
+			perror( "recv" );
+		}
+		else
+		{	
+			buffer[number_of_bytes_received] = '\0';
+			printf( "Received : %s\n", buffer );
+		}
+	}
+	
+}
 
 
 int main( int argc, char * argv[] )
@@ -77,12 +98,34 @@ int main( int argc, char * argv[] )
 	OSInit();
 
 	int internet_socket = initialization();
+	system("cls");
+	printf("\n\n\n**************************************************\n");
+	printf(" - - - - - - - - -  SPT launched  - - - - - - - -\n");
+	printf("**************************************************\n\n\n");
 
+	pthread_t id1, id2;
+    	if (pthread_create(&id1, NULL, &sendItem, NULL) != 0) 
+		{
+    	    return 1;
+    	}
+    	if (pthread_create(&id2, NULL, &receiveItem, NULL) != 0) 
+		{
+        	return 2;
+    	}
+
+    	if (pthread_join(id1, NULL) != 0) 
+		{
+        	return 3;
+    	}
+    	if (pthread_join(id2, NULL) != 0) 
+		{
+        	return 4;
+    	}
 	/////////////
 	//Execution//
 	/////////////
 
-	execution( internet_socket );
+//	execution( internet_socket );
 
 
 	////////////
@@ -151,6 +194,12 @@ int initialization()
 
 void execution( int internet_socket )
 {
+
+	printf("waiting for servermessage...");
+	
+
+/*
+
 	//Step 2.1
 	int number_of_bytes_send = 0;
 	number_of_bytes_send = send( internet_socket, "Hello TCP world!", 16, 0 );
@@ -172,6 +221,8 @@ void execution( int internet_socket )
 		buffer[number_of_bytes_received] = '\0';
 		printf( "Received : %s\n", buffer );
 	}
+*/
+
 }
 
 void cleanup( int internet_socket )
