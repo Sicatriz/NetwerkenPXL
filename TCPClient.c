@@ -43,6 +43,28 @@ int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
 
+void* sendItem()
+{
+	while (1)
+	{
+		int lengteItem;
+		char inhoudItem[180];
+
+		gets(inhoudItem);
+		lengteItem = strlen(lengteItem);
+		inhoudItem[lengteItem] = '\r';
+
+		int number_of_bytes_send = 0;
+		number_of_bytes_send = send( internet_socket, inhoudItem, lengteItem, 0 );
+		if( number_of_bytes_send == -1 )
+		{
+			perror( "send" );
+		}
+
+	}
+	
+}
+
 
 
 
