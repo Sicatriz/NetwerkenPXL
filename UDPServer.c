@@ -8,6 +8,7 @@
 	#include <unistd.h> //for close
 	#include <stdlib.h> //for exit
 	#include <string.h> //for memset
+	#include <time.h> //for clock
 	void OSInit( void )
 	{
 		WSADATA wsaData;
@@ -44,8 +45,6 @@ void cleanup( int internet_socket );
 
 int qPakket;
 
-
-
 int main( int argc, char * argv[] )
 {
 
@@ -66,8 +65,6 @@ int main( int argc, char * argv[] )
 	
 	execution( internet_socket );
 
-
-
 	////////////
 	//Clean up//
 	////////////
@@ -75,8 +72,6 @@ int main( int argc, char * argv[] )
 	cleanup( internet_socket );
 
 	OSCleanup();
-
-
 
 	return 0;
 }
@@ -137,17 +132,29 @@ int initialization()
 
 void execution( int internet_socket )
 {
+	int timeout = 10000;
+
+	printf("Hoeveel seconden moet de timeout bedragen?");
+	scanf("%d", &timeout);
+	timeout = timeout *1000;
+
+	float percentPakket = 0;
+    if (setsockopt(internet_socket, SOL_SOCKET, SO_RCVTIMEO,&timeout,sizeof(timeout)) < 0) {
+        perror("Error");
+    }
 	FILE *output;
 	output = fopen("output.csv", "w+");
+	fprintf(output, "De gebruiker heeft gekozen om %d pakketten te ontvangen\n\n", qPakket);
 	int totPakket;
 	totPakket = 0;
 
-		//Step 2.1
-		int number_of_bytes_received = 0;
-		char buffer[1000];
-		struct sockaddr_storage client_internet_address;
-		socklen_t client_internet_address_length = sizeof client_internet_address;
-	
+	//Step 2.1
+	int number_of_bytes_received = 0;
+	char buffer[1000];
+	struct sockaddr_storage client_internet_address;
+	socklen_t client_internet_address_length = sizeof client_internet_address;
+
+	clock_t begin = clock();
 	for (size_t i = 0; i < qPakket; i++)
 	{
 			number_of_bytes_received = recvfrom( internet_socket, buffer, ( sizeof buffer ) - 1, 0, (struct sockaddr *) &client_internet_address, &client_internet_address_length );
@@ -159,15 +166,22 @@ void execution( int internet_socket )
 			{
 				buffer[number_of_bytes_received] = '\0';
 				printf( "Received : %s\n", buffer );
-				fprintf(output, "%s\n", buffer);
+				fprintf(output, "pakket %d van %d : %s\n", i+1, qPakket, buffer);
 				totPakket = totPakket +1;
 			}
 
 	}
-			printf( "Total packets received : %s\n", totPakket );
-			fprintf(output, "Total packets received : %d\n", totPakket);
-
-
+	clock_t end = clock();
+	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	printf("%.2f\n", time_spent);
+	printf( "Total packets received : %d\n", totPakket );
+	printf("Total packets missed : %d\n", qPakket - totPakket);
+	percentPakket = (float) totPakket / qPakket * 100;
+	printf("accuracy rate is : %.2lf percent\n", percentPakket);
+	fprintf(output, "\nTotal packets received : %d\n", totPakket);
+	fprintf(output, "Totaal tijd tussen eerste en laatste pakket is %.2f seconden.\n", time_spent);
+	fprintf(output, "Total packets missed : %d\n", qPakket - totPakket);
+	fprintf(output, "accuracy rate is : %.2lf percent\n", percentPakket);
 
 	//Step 2.2
 	int number_of_bytes_send = 0;

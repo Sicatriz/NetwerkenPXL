@@ -5,6 +5,7 @@
 	#include <stdio.h> //for fprintf, perror
 	#include <unistd.h> //for close
 	#include <stdlib.h> //for exit
+	#include <pthread.h>
 	#include <string.h> //for memset
 	void OSInit( void )
 	{
@@ -36,9 +37,14 @@
 	void OSCleanup( void ) {}
 #endif
 
+int internet_socket;
+
 int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
+
+
+
 
 int main( int argc, char * argv[] )
 {
@@ -74,9 +80,9 @@ int initialization()
 	struct addrinfo internet_address_setup;
 	struct addrinfo * internet_address_result;
 	memset( &internet_address_setup, 0, sizeof internet_address_setup );
-	internet_address_setup.ai_family = AF_UNSPEC;
+	internet_address_setup.ai_family = AF_INET;
 	internet_address_setup.ai_socktype = SOCK_STREAM;
-	int getaddrinfo_return = getaddrinfo( "::1", "24042", &internet_address_setup, &internet_address_result );
+	int getaddrinfo_return = getaddrinfo( "127.0.0.1", "24042", &internet_address_setup, &internet_address_result );
 	if( getaddrinfo_return != 0 )
 	{
 		fprintf( stderr, "getaddrinfo: %s\n", gai_strerror( getaddrinfo_return ) );
