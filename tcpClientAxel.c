@@ -37,39 +37,39 @@
 	void OSCleanup( void ) {}
 #endif
 
-int internet_socket;
+int internet_socket; //Made global so both of my threads can see it.
 
 int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
 
-void* sendItem()
-{
+//thread used to send messages.
+void* sendThread() {
 	while (1)
 	{
-		int lengteItem;
-		char inhoudItem[180];
+   		int lenghtOfContentPacketToSend;
+		char contentPacketToSend[180]; 
+   	
+		gets(contentPacketToSend);
 
-		gets(inhoudItem);
-		lengteItem = strlen(inhoudItem);
-		inhoudItem[lengteItem] = '\r';
+		//Adds /0 terminator to the end of the stings and gets the bytes for sendto function
+		lenghtOfContentPacketToSend = strlen(contentPacketToSend);
+		contentPacketToSend[lenghtOfContentPacketToSend] = '\r';
+
 
 		int number_of_bytes_send = 0;
-		number_of_bytes_send = send( internet_socket, inhoudItem, lengteItem, 0 );
+		number_of_bytes_send = send( internet_socket, contentPacketToSend, lenghtOfContentPacketToSend, 0 );
 		if( number_of_bytes_send == -1 )
 		{
 			perror( "send" );
 		}
-
 	}
-	
 }
 
-void* receiveItem()
-{
-
+//thread used to receive messages.
+void* receiveThread() {
 	while (1)
-	{
+		{
 		int number_of_bytes_received = 0;
 		char buffer[10000];
 		number_of_bytes_received = recv( internet_socket, buffer, ( sizeof buffer ) - 1, 0 );
@@ -83,52 +83,53 @@ void* receiveItem()
 			printf( "Received : %s\n", buffer );
 		}
 	}
-	
 }
 
 
 int main( int argc, char * argv[] )
 {
-	//////////////////
-	//Initialization//
-	//////////////////
-
 	OSInit();
 
 	internet_socket = initialization();
-	system("cls");
-	printf("\n\n\n**************************************************\n");
-	printf(" - - - - - - - - -  SPT launched  - - - - - - - -\n");
-	printf("**************************************************\n\n\n");
 
-	pthread_t id1, id2;
-    	if (pthread_create(&id1, NULL, &sendItem, NULL) != 0) 
-		{
-    	    return 1;
-    	}
-    	if (pthread_create(&id2, NULL, &receiveItem, NULL) != 0) 
-		{
-        	return 2;
-    	}
+	printf("========================================================================================\n\n");
+			printf("  /$$$$$$  /$$ /$$                       /$$                         \n");
+			printf(" /$$__  $$| $$|__/                      | $$                         \n");
+			printf("| $$  \\__/| $$ /$$  /$$$$$$  /$$$$$$$  /$$$$$$                       \n");
+			printf("| $$      | $$| $$ /$$__  $$| $$__  $$|_  $$_/                       \n");
+			printf("| $$      | $$| $$| $$$$$$$$| $$  \\ $$  | $$                         \n");
+			printf("| $$    $$| $$| $$| $$_____/| $$  | $$  | $$ /$$                     \n");
+			printf("|  $$$$$$/| $$| $$|  $$$$$$$| $$  | $$  |  $$$$/                     \n");
+			printf(" \\______/ |__/|__/ \\_______/|__/  |__/   \\___/                       \n");
+			printf("\n");
+			printf("\n");
+			printf("\n");
+			printf("  /$$$$$$   /$$                           /$$                     /$$\n");
+			printf(" /$$__  $$ | $$                          | $$                    | $$\n");
+			printf("| $$  \\__//$$$$$$    /$$$$$$   /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$\n");
+			printf("|  $$$$$$|_  $$_/   |____  $$ /$$__  $$|_  $$_/   /$$__  $$ /$$__  $$\n");
+			printf(" \\____  $$ | $$      /$$$$$$$| $$  \\__/  | $$    | $$$$$$$$| $$  | $$\n");
+			printf(" /$$  \\ $$ | $$ /$$ /$$__  $$| $$        | $$ /$$| $$_____/| $$  | $$\n");
+			printf("|  $$$$$$/ |  $$$$/|  $$$$$$$| $$        |  $$$$/|  $$$$$$$|  $$$$$$$\n");
+			printf(" \\______/   \\___/   \\_______/|__/         \\___/   \\_______/ \\_______/\n\n");
+	printf("========================================================================================\n\n\n\n");
+	printf("You can now type and receive messages. Have fun!\n");
+	
+	//Create my threads and run those suckers.
+	pthread_t p1, p2;
+    if (pthread_create(&p1, NULL, &sendThread, NULL) != 0) {
+        return 1;
+    }
+    if (pthread_create(&p2, NULL, &receiveThread, NULL) != 0) {
+        return 2;
+    }
 
-    	if (pthread_join(id1, NULL) != 0) 
-		{
-        	return 3;
-    	}
-    	if (pthread_join(id2, NULL) != 0) 
-		{
-        	return 4;
-    	}
-	/////////////
-	//Execution//
-	/////////////
-
-//	execution( internet_socket );
-
-
-	////////////
-	//Clean up//
-	////////////
+    if (pthread_join(p1, NULL) != 0) {
+        return 3;
+    }
+    if (pthread_join(p2, NULL) != 0) {
+        return 4;
+    }
 
 	cleanup( internet_socket );
 
@@ -139,13 +140,12 @@ int main( int argc, char * argv[] )
 
 int initialization()
 {
-	//Step 1.1
 	struct addrinfo internet_address_setup;
 	struct addrinfo * internet_address_result;
 	memset( &internet_address_setup, 0, sizeof internet_address_setup );
 	internet_address_setup.ai_family = AF_INET;
 	internet_address_setup.ai_socktype = SOCK_STREAM;
-	int getaddrinfo_return = getaddrinfo( "127.0.0.1", "9034", &internet_address_setup, &internet_address_result );
+	int getaddrinfo_return = getaddrinfo( "127.0.0.1", "24050", &internet_address_setup, &internet_address_result );
 	if( getaddrinfo_return != 0 )
 	{
 		fprintf( stderr, "getaddrinfo: %s\n", gai_strerror( getaddrinfo_return ) );
@@ -156,7 +156,6 @@ int initialization()
 	struct addrinfo * internet_address_result_iterator = internet_address_result;
 	while( internet_address_result_iterator != NULL )
 	{
-		//Step 1.2
 		internet_socket = socket( internet_address_result_iterator->ai_family, internet_address_result_iterator->ai_socktype, internet_address_result_iterator->ai_protocol );
 		if( internet_socket == -1 )
 		{
@@ -164,7 +163,6 @@ int initialization()
 		}
 		else
 		{
-			//Step 1.3
 			int connect_return = connect( internet_socket, internet_address_result_iterator->ai_addr, internet_address_result_iterator->ai_addrlen );
 			if( connect_return == -1 )
 			{
@@ -191,35 +189,10 @@ int initialization()
 }
 
 void execution( int internet_socket )
-{
+{	
 
-	printf("waiting for servermessage...");
 
-/*
-
-	//Step 2.1
-	int number_of_bytes_send = 0;
-	number_of_bytes_send = send( internet_socket, "Hello TCP world!", 16, 0 );
-	if( number_of_bytes_send == -1 )
-	{
-		perror( "send" );
-	}
-
-	//Step 2.2
-	int number_of_bytes_received = 0;
-	char buffer[1000];
-	number_of_bytes_received = recv( internet_socket, buffer, ( sizeof buffer ) - 1, 0 );
-	if( number_of_bytes_received == -1 )
-	{
-		perror( "recv" );
-	}
-	else
-	{
-		buffer[number_of_bytes_received] = '\0';
-		printf( "Received : %s\n", buffer );
-	}
-*/
-
+	printf("... waiting for a message from the server.");
 }
 
 void cleanup( int internet_socket )
