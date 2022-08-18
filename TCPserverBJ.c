@@ -50,10 +50,13 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void intro (void);
+
 int main(void)
 {
 
 	OSInit();
+    intro();
 
     fd_set master;    // master file descriptor list
     fd_set read_fds;  // temp file descriptor list for select()
@@ -158,7 +161,7 @@ int main(void)
 
 
                         char newConnMess[256];
-                        sprintf(newConnMess, "selectserver: new connection from %s on "
+                        sprintf(newConnMess, "\n> > > New user from %s on "
                             "socket %d\n",
                             inet_ntop(remoteaddr.ss_family,
                                 get_in_addr((struct sockaddr*)&remoteaddr),
@@ -185,6 +188,25 @@ int main(void)
                         if (nbytes == 0) {
                             // connection closed
                             printf("selectserver: socket %d hung up\n", i);
+                            
+                        char newLeftMess[256];
+                        int leftPort = i;
+                        sprintf(newLeftMess, "\n> > > User left on "
+                            "socket %d\n",
+                            leftPort);
+
+                        for(j = 0; j <= fdmax; j++) {
+                            // send to everyone!
+                            if (FD_ISSET(j, &master)) {
+                                // except the listener and ourselves
+                                if (j != listener && j != i) {
+                                    if (send(j, newLeftMess, strlen(newLeftMess) +1, 0) == -1) {
+                                        perror("send");
+                                    }
+                                }
+                            }
+                        }
+
                         } else {
                             perror("recv");
                         }
@@ -214,3 +236,11 @@ int main(void)
     return 0;
 }
 
+void intro(void)
+{
+    system("cls");
+	printf("\n\n\n*********************************************************\n");
+	printf(" - - - - - - - - -  SPT SERVER launched  - - - - - - - -\n");
+	printf("*********************************************************\n\n\n");
+    printf("\n... waiting for users to connect...\n\n\n");
+}
