@@ -1,4 +1,8 @@
-// gcc UDPClient.c -l ws2_32 -o run
+// gcc UDPClient.c -l ws2_32 -o runClient
+
+/*
+    Bronnen: BJ guide, Bart Stukken (docent) en Axel Vanherle (studybuddy)
+*/
 
 #ifdef _WIN32
 	#define _WIN32_WINNT _WIN32_WINNT_WIN7

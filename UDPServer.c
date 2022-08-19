@@ -1,4 +1,8 @@
-// gcc UDPServer.c -l ws2_32 -o run
+// gcc UDPServer.c -l ws2_32 -o runS
+
+/*
+    Bronnen: BJ guide, Bart Stukken (docent) en Axel Vanherle (studybuddy)
+*/
 
 #ifdef _WIN32
 	#define _WIN32_WINNT _WIN32_WINNT_WIN7
@@ -42,6 +46,7 @@
 int initialization();
 void execution( int internet_socket );
 void cleanup( int internet_socket );
+void intro (void);
 
 int qPakket;
 
@@ -53,6 +58,7 @@ int main( int argc, char * argv[] )
 	//////////////////
 
 	OSInit();
+	intro();
 
 	int internet_socket = initialization();
 
@@ -134,7 +140,7 @@ void execution( int internet_socket )
 {
 	int timeout = 10000;
 
-	printf("Hoeveel seconden moet de timeout bedragen?");
+	printf("Hoeveel seconden moet de timeout bedragen?\n\n");
 	scanf("%d", &timeout);
 	timeout = timeout *1000;
 
@@ -173,13 +179,13 @@ void execution( int internet_socket )
 	}
 	clock_t end = clock();
 	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("%.2f\n", time_spent);
-	printf( "Total packets received : %d\n", totPakket );
+	printf("\ncycle time was %.2f seconds\n", time_spent);
+	printf( "\nTotal packets received : %d\n", totPakket );
 	printf("Total packets missed : %d\n", qPakket - totPakket);
 	percentPakket = (float) totPakket / qPakket * 100;
 	printf("accuracy rate is : %.2lf percent\n", percentPakket);
+	fprintf(output, "Totaal tijd tussen eerste en laatste pakket is %.2f seconden.\n\n", time_spent);
 	fprintf(output, "\nTotal packets received : %d\n", totPakket);
-	fprintf(output, "Totaal tijd tussen eerste en laatste pakket is %.2f seconden.\n", time_spent);
 	fprintf(output, "Total packets missed : %d\n", qPakket - totPakket);
 	fprintf(output, "accuracy rate is : %.2lf percent\n", percentPakket);
 
@@ -198,4 +204,12 @@ void cleanup( int internet_socket )
 {
 	//Step 3.1
 	close( internet_socket );
+}
+
+void intro(void)
+{
+    system("cls");
+	printf("\n\n\n*********************************************************\n");
+	printf(" - - - - - - - - -  UDP SERVER launched  - - - - - - - -\n");
+	printf("*********************************************************\n\n\n");
 }

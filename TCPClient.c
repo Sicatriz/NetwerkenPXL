@@ -1,3 +1,9 @@
+ // gcc TCPClient.c -l ws2_32 -o tcpC
+
+ /*
+    Bronnen: BJ guide, Bart Stukken (docent) en Axel Vanherle (studybuddy)
+*/
+ 
  #ifdef _WIN32
 	#define _WIN32_WINNT _WIN32_WINNT_WIN7
 	#include <winsock2.h> //for all socket programming
@@ -60,7 +66,6 @@ void* sendItem()
 		{
 			perror( "send" );
 		}
-
 	}
 	
 }
@@ -86,12 +91,8 @@ void* receiveItem()
 	
 }
 
-
 int main( int argc, char * argv[] )
 {
-	//////////////////
-	//Initialization//
-	//////////////////
 
 	OSInit();
 
@@ -119,16 +120,6 @@ int main( int argc, char * argv[] )
 		{
         	return 4;
     	}
-	/////////////
-	//Execution//
-	/////////////
-
-//	execution( internet_socket );
-
-
-	////////////
-	//Clean up//
-	////////////
 
 	cleanup( internet_socket );
 
@@ -192,34 +183,7 @@ int initialization()
 
 void execution( int internet_socket )
 {
-
 	printf("waiting for servermessage...");
-
-/*
-
-	//Step 2.1
-	int number_of_bytes_send = 0;
-	number_of_bytes_send = send( internet_socket, "Hello TCP world!", 16, 0 );
-	if( number_of_bytes_send == -1 )
-	{
-		perror( "send" );
-	}
-
-	//Step 2.2
-	int number_of_bytes_received = 0;
-	char buffer[1000];
-	number_of_bytes_received = recv( internet_socket, buffer, ( sizeof buffer ) - 1, 0 );
-	if( number_of_bytes_received == -1 )
-	{
-		perror( "recv" );
-	}
-	else
-	{
-		buffer[number_of_bytes_received] = '\0';
-		printf( "Received : %s\n", buffer );
-	}
-*/
-
 }
 
 void cleanup( int internet_socket )
